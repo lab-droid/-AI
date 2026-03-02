@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import { 
   Search, 
@@ -16,7 +16,8 @@ import {
   RefreshCw,
   Loader2,
   CheckCircle2,
-  ArrowRight
+  ArrowRight,
+  Key
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -25,6 +26,15 @@ interface KeywordResult {
   keyword: string;
   strategy: string;
   effect: string;
+}
+
+declare global {
+  interface Window {
+    aistudio: {
+      hasSelectedApiKey: () => Promise<boolean>;
+      openSelectKey: () => Promise<void>;
+    };
+  }
 }
 
 export default function App() {
@@ -38,6 +48,46 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<KeywordResult[]>([]);
   const [copied, setCopied] = useState(false);
+  const [hasApiKey, setHasApiKey] = useState(false);
+  const [userApiKey, setUserApiKey] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    const checkApiKey = async () => {
+      // Check localStorage first (for Vercel/External deployment)
+      const storedKey = localStorage.getItem('GEMINI_API_KEY');
+      if (storedKey) {
+        setUserApiKey(storedKey);
+        setHasApiKey(true);
+        return;
+      }
+
+      // Fallback to AI Studio platform key
+      if (window.aistudio) {
+        const hasKey = await window.aistudio.hasSelectedApiKey();
+        setHasApiKey(hasKey);
+      }
+    };
+    checkApiKey();
+  }, []);
+
+  const handleSelectKey = async () => {
+    if (window.aistudio) {
+      await window.aistudio.openSelectKey();
+      setHasApiKey(true);
+    } else {
+      setIsModalOpen(true);
+    }
+  };
+
+  const saveCustomKey = (key: string) => {
+    if (key.trim()) {
+      localStorage.setItem('GEMINI_API_KEY', key.trim());
+      setUserApiKey(key.trim());
+      setHasApiKey(true);
+      setIsModalOpen(false);
+    }
+  };
 
   const generateKeywords = async () => {
     if (!mainKeyword) return;
@@ -46,7 +96,16 @@ export default function App() {
     setResults([]);
     
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      // Use user-provided key from localStorage/state, or fallback to process.env (AI Studio)
+      const apiKey = userApiKey || process.env.GEMINI_API_KEY;
+      
+      if (!apiKey) {
+        alert("API Key가 등록되지 않았습니다. 우측 상단에서 등록해주세요.");
+        setLoading(false);
+        return;
+      }
+
+      const ai = new GoogleGenAI({ apiKey });
       const countPrompt = isAutoCount 
         ? "키워드의 시장 규모와 확장성을 고려하여 가장 적합한 개수(보통 20~40개 사이)의" 
         : `${count}개의`;
@@ -130,6 +189,28 @@ ${mainKeyword2 ? '5' : '4'}. 주요 타겟 고객: ${targetAudience || '일반 �
               <h1 className="text-xl font-bold tracking-tight">혁신 키워드 조합 AI</h1>
               <p className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-semibold">Keyword Strategy Engine</p>
             </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={handleSelectKey}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-[11px] font-bold transition-all ${
+                hasApiKey 
+                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
+                  : 'bg-white text-black hover:bg-white/90 shadow-[0_0_15px_rgba(255,255,255,0.1)]'
+              }`}
+            >
+              {hasApiKey ? (
+                <>
+                  <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+                  API Key 등록됨
+                </>
+              ) : (
+                <>
+                  <Key className="w-3 h-3" />
+                  Google API Key 등록
+                </>
+              )}
+            </button>
           </div>
         </div>
       </header>
@@ -411,14 +492,9 @@ ${mainKeyword2 ? '5' : '4'}. 주요 타겟 고객: ${targetAudience || '일반 �
         <div className="flex flex-col md:flex-row items-center justify-between gap-8 opacity-40 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-700">
           <div className="flex items-center gap-3">
             <Zap className="w-5 h-5" />
-            <span className="text-sm font-bold tracking-tighter uppercase">Innovation Keyword AI</span>
+            <span className="text-sm font-bold tracking-tighter uppercase">혁신AI</span>
           </div>
-          <p className="text-xs font-medium">© 2024 NEXTIN AI Lab. All rights reserved.</p>
-          <div className="flex gap-6 text-xs font-bold uppercase tracking-widest">
-            <a href="#" className="hover:text-white">Privacy</a>
-            <a href="#" className="hover:text-white">Terms</a>
-            <a href="#" className="hover:text-white">Contact</a>
-          </div>
+          <p className="text-xs font-medium">© 2026 NEXTIN AI Lab. All rights reserved.</p>
         </div>
       </footer>
 
@@ -437,6 +513,67 @@ ${mainKeyword2 ? '5' : '4'}. 주요 타겟 고객: ${targetAudience || '일반 �
           background: rgba(255, 255, 255, 0.2);
         }
       `}} />
+
+      {/* API Key Modal */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsModalOpen(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-md bg-[#111] border border-white/10 rounded-[32px] p-8 shadow-2xl"
+            >
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center mb-4">
+                    <Key className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold tracking-tight">Google API Key 등록</h3>
+                  <p className="text-white/50 text-sm leading-relaxed">
+                    Vercel 배포 환경에서는 본인의 Gemini API Key를 입력해야 서비스를 이용할 수 있습니다. 입력된 키는 브라우저에만 안전하게 저장됩니다.
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-[11px] uppercase tracking-wider text-white/40 font-bold">API Key</label>
+                    <input 
+                      type="password"
+                      placeholder="AI... 로 시작하는 키를 입력하세요"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-white/40 focus:bg-white/10 transition-all placeholder:text-white/20 text-sm"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          saveCustomKey((e.target as HTMLInputElement).value);
+                        }
+                      }}
+                    />
+                  </div>
+                  <button 
+                    onClick={(e) => {
+                      const input = (e.currentTarget.previousSibling as HTMLElement).querySelector('input');
+                      if (input) saveCustomKey(input.value);
+                    }}
+                    className="w-full bg-white text-black py-3.5 rounded-xl font-bold hover:bg-white/90 transition-all"
+                  >
+                    저장하기
+                  </button>
+                  <p className="text-[10px] text-center text-white/30">
+                    키가 없으시다면 <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="underline hover:text-white">Google AI Studio</a>에서 무료로 발급받을 수 있습니다.
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
