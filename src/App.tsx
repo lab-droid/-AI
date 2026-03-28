@@ -215,9 +215,48 @@ ${mainKeyword2 ? '5' : '4'}. 주요 타겟 고객: ${targetAudience || '일반 �
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-12 gap-12">
-        {/* Input Section */}
-        <div className="lg:col-span-4 space-y-8">
+      <main className="max-w-7xl mx-auto px-6 py-12 space-y-12">
+        {/* Hero Image Section */}
+        <section className="w-full aspect-video rounded-[32px] overflow-hidden border border-white/10 relative shadow-2xl group flex items-center justify-center">
+          <img 
+            src="https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=2074&auto=format&fit=crop" 
+            alt="혁신 키워드 조합 AI Background" 
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 opacity-40"
+            referrerPolicy="no-referrer"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/40 to-transparent" />
+          
+          <div className="relative z-10 text-center space-y-4 p-6">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="inline-flex items-center justify-center p-3 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md mb-2"
+            >
+              <Zap className="w-6 h-6 text-white" />
+            </motion.div>
+            <motion.h2 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.1 }}
+              className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tighter text-white drop-shadow-2xl"
+            >
+              혁신 키워드 조합 AI
+            </motion.h2>
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="text-white/60 text-sm md:text-base font-medium tracking-widest uppercase"
+            >
+              Data-Driven Keyword Strategy Engine
+            </motion.p>
+          </div>
+        </section>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          {/* Input Section */}
+          <div className="lg:col-span-4 space-y-8">
           <section className="space-y-6">
             <div className="space-y-2">
               <h2 className="text-2xl font-semibold tracking-tight">키워드 설정</h2>
@@ -485,6 +524,7 @@ ${mainKeyword2 ? '5' : '4'}. 주요 타겟 고객: ${targetAudience || '일반 �
               </AnimatePresence>
             </div>
           </div>
+        </div>
         </div>
       </main>
 
