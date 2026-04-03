@@ -52,6 +52,8 @@ export default function App() {
   const [userApiKey, setUserApiKey] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [isCostOpen, setIsCostOpen] = useState(false);
+  const [isInquiryOpen, setIsInquiryOpen] = useState(false);
 
   useEffect(() => {
     const checkApiKey = async () => {
@@ -198,6 +200,13 @@ ${mainKeyword2 ? '5' : '4'}. 주요 타겟 고객: ${targetAudience || '일반 �
             >
               <Search className="w-3 h-3" />
               사용방법
+            </button>
+            <button 
+              onClick={() => setIsCostOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-full text-[11px] font-bold bg-white/5 text-white/60 border border-white/10 hover:bg-white/10 transition-all"
+            >
+              <Zap className="w-3 h-3" />
+              API 비용
             </button>
             <button 
               onClick={handleSelectKey}
@@ -543,6 +552,23 @@ ${mainKeyword2 ? '5' : '4'}. 주요 타겟 고객: ${targetAudience || '일반 �
             <span className="text-sm font-bold tracking-tighter uppercase">혁신AI</span>
           </div>
           <p className="text-xs font-medium">© 2026 NEXTIN AI Lab. All rights reserved.</p>
+          <div className="flex flex-wrap items-center gap-4">
+            <a 
+              href="https://hyeoksinai.com" 
+              target="_blank" 
+              rel="noreferrer"
+              className="text-[11px] font-bold bg-white/5 hover:bg-white/10 text-white/60 px-4 py-2 rounded-full border border-white/10 transition-all flex items-center gap-2"
+            >
+              혁신AI 플랫폼 바로가기
+              <ArrowRight className="w-3 h-3" />
+            </a>
+            <button 
+              onClick={() => setIsInquiryOpen(true)}
+              className="text-[11px] font-bold bg-white/5 hover:bg-white/10 text-white/60 px-4 py-2 rounded-full border border-white/10 transition-all"
+            >
+              오류 및 유지보수 문의
+            </button>
+          </div>
         </div>
       </footer>
 
@@ -694,6 +720,179 @@ ${mainKeyword2 ? '5' : '4'}. 주요 타겟 고객: ${targetAudience || '일반 �
                 <button 
                   onClick={() => setIsHelpOpen(false)}
                   className="w-full bg-white/10 text-white py-4 rounded-2xl font-bold hover:bg-white/20 transition-all"
+                >
+                  확인했습니다
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Cost Modal */}
+      <AnimatePresence>
+        {isCostOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsCostOpen(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-2xl bg-[#111] border border-white/10 rounded-[32px] p-8 shadow-2xl overflow-hidden"
+            >
+              <div className="space-y-8">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <h3 className="text-2xl font-bold tracking-tight">Gemini API 비용 안내</h3>
+                    <p className="text-white/40 text-xs uppercase tracking-widest font-bold">Gemini 3 Flash Pricing Details</p>
+                  </div>
+                  <button 
+                    onClick={() => setIsCostOpen(false)}
+                    className="p-2 hover:bg-white/10 rounded-xl transition-colors text-white/40 hover:text-white"
+                  >
+                    <RefreshCw className="w-5 h-5 rotate-45" />
+                  </button>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="p-6 bg-white/5 rounded-2xl border border-white/10 space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center">
+                        <Zap className="w-4 h-4 text-emerald-400" />
+                      </div>
+                      <h4 className="font-bold text-lg">Gemini 3 Flash (현재 모델)</h4>
+                    </div>
+                    <p className="text-sm text-white/50 leading-relaxed">
+                      이 앱은 속도와 비용 효율성이 가장 뛰어난 **Gemini 3 Flash** 모델을 사용합니다. 
+                      원화 기준으로 환산 시, **키워드 1회 생성 비용은 약 1원 미만**으로 매우 경제적입니다.
+                    </p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                      <div className="p-4 bg-black/40 rounded-xl border border-white/5 space-y-1">
+                        <p className="text-[10px] text-white/30 uppercase font-bold">입력 (Input)</p>
+                        <p className="text-lg font-mono font-bold text-white">약 101원 <span className="text-xs text-white/40">/ 100만 토큰</span></p>
+                        <p className="text-[10px] text-emerald-400/60 font-medium">($0.075 / 1M tokens)</p>
+                      </div>
+                      <div className="p-4 bg-black/40 rounded-xl border border-white/5 space-y-1">
+                        <p className="text-[10px] text-white/30 uppercase font-bold">출력 (Output)</p>
+                        <p className="text-lg font-mono font-bold text-white">약 405원 <span className="text-xs text-white/40">/ 100만 토큰</span></p>
+                        <p className="text-[10px] text-emerald-400/60 font-medium">($0.30 / 1M tokens)</p>
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-white/[0.02] rounded-xl border border-white/5 space-y-3">
+                      <h5 className="text-xs font-bold text-white/60 flex items-center gap-2">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                        실제 체감 비용 (1회 생성 기준)
+                      </h5>
+                      <div className="grid grid-cols-2 gap-4 text-[11px]">
+                        <div className="space-y-1">
+                          <p className="text-white/30">평균 사용량</p>
+                          <p className="text-white/70 font-medium">약 2,000 토큰 내외</p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-white/30">예상 비용</p>
+                          <p className="text-emerald-400 font-bold text-sm">약 0.7원 / 회</p>
+                        </div>
+                      </div>
+                      <p className="text-[10px] text-white/20 leading-relaxed">
+                        * 1,000원 결제 시 약 1,400회 이상의 키워드 생성이 가능합니다. (환율 1,350원 기준)
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-5 bg-white/5 rounded-2xl border border-white/10 space-y-2">
+                      <h5 className="text-sm font-bold">무료 티어 (Free Tier)</h5>
+                      <p className="text-xs text-white/40 leading-relaxed">
+                        Google AI Studio 무료 키 사용 시 **비용이 전혀 발생하지 않습니다.** (분당 15회 요청 제한)
+                      </p>
+                    </div>
+                    <div className="p-5 bg-white/5 rounded-2xl border border-white/10 space-y-2">
+                      <h5 className="text-sm font-bold">유료 결제 (Pay-as-you-go)</h5>
+                      <p className="text-xs text-white/40 leading-relaxed">
+                        제한 없는 속도가 필요할 때만 유료로 전환하세요. 사용한 만큼만 청구되어 매우 합리적입니다.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-white/5 rounded-2xl border border-white/5 text-center">
+                    <p className="text-[11px] text-white/30">
+                      ※ 위 가격은 Google AI Studio의 공식 가격 정책을 따르며, 환율 및 정책에 따라 변동될 수 있습니다.
+                    </p>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={() => setIsCostOpen(false)}
+                  className="w-full bg-white/10 text-white py-4 rounded-2xl font-bold hover:bg-white/20 transition-all"
+                >
+                  닫기
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+      {/* Inquiry Modal */}
+      <AnimatePresence>
+        {isInquiryOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsInquiryOpen(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-lg bg-[#111] border border-white/10 rounded-[32px] p-8 shadow-2xl"
+            >
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <h3 className="text-xl font-bold tracking-tight">오류 및 유지보수 문의</h3>
+                    <p className="text-white/40 text-[10px] uppercase tracking-widest font-bold">Support & Maintenance</p>
+                  </div>
+                  <button 
+                    onClick={() => setIsInquiryOpen(false)}
+                    className="p-2 hover:bg-white/10 rounded-xl transition-colors text-white/40 hover:text-white"
+                  >
+                    <RefreshCw className="w-5 h-5 rotate-45" />
+                  </button>
+                </div>
+
+                <div className="p-6 bg-white/5 rounded-2xl border border-white/10 space-y-4">
+                  <p className="text-sm text-white/70 leading-relaxed">
+                    오류 및 유지보수 요청사항이 있으실 경우 아래 메일로 어떤 부분의 오류 개선 또는 유지보수를 요청하시는지 상세하게 기입하여 보내주시면, **정혁신**이 실시간으로 확인하여 답변 드리겠습니다.
+                  </p>
+                  
+                  <div className="p-4 bg-black/40 rounded-xl border border-white/5 flex items-center justify-between group">
+                    <span className="text-emerald-400 font-mono font-bold">info@nextin.ai.kr</span>
+                    <button 
+                      onClick={() => {
+                        navigator.clipboard.writeText('info@nextin.ai.kr');
+                        alert('이메일 주소가 복사되었습니다.');
+                      }}
+                      className="text-[10px] font-bold text-white/40 hover:text-white transition-colors"
+                    >
+                      복사하기
+                    </button>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={() => setIsInquiryOpen(false)}
+                  className="w-full bg-white text-black py-4 rounded-2xl font-bold hover:bg-white/90 transition-all"
                 >
                   확인했습니다
                 </button>
